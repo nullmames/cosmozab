@@ -30,13 +30,12 @@ SERVER=<your-server-address>
 
 Inject server address into config with `sed`
 ```bash
-SERVER=120.150.242.147
 sudo sed -i 's/Server=127.0.0.1/Server='"${SERVER}"'/g' /etc/zabbix/zabbix_agent2.conf
 ```
 
 ## Install Configs
 
-Wget config
+`curl` config file from repo
 
 ```bash
 sudo curl -o /etc/zabbix/zabbix_agent2.d/zab.userparameters.cosmos.conf https://raw.githubusercontent.com/nullmames/cosmozab/main/zabbix_agent2.d/zab.userparameters.cosmos.conf
