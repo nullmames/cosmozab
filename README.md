@@ -14,6 +14,7 @@ This is a collection of instructions, configurations and templates to integrate 
 Configurations are based on Ubuntu 20.04 but should work on most Linux distributions.
 
 ## Screenshots
+![image](https://user-images.githubusercontent.com/85548668/147846304-386e1123-eab5-4eea-89dd-fb5d85fb352d.png)
 
 
 # Install Agent and Configs
