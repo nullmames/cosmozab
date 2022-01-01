@@ -1,0 +1,519 @@
+zabbix_export:
+  version: '6.0'
+  date: '2022-01-01T07:23:29Z'
+  groups:
+    -
+      uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    -
+      uuid: 19904043166a471c8c21db2d73c88b15
+      template: 'Cosmos Nodes'
+      name: 'Cosmos Nodes'
+      description: 'Stats for cosmos nodes'
+      groups:
+        -
+          name: Templates/Applications
+      items:
+        -
+          uuid: b3269dcf323945f28d296d75e293f103
+          name: 'Node Network'
+          type: DEPENDENT
+          key: node.network
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.result.node_info.network
+          master_item:
+            key: rpc.data.status
+          tags:
+            -
+              tag: Cosmos
+              value: Node
+        -
+          uuid: 31772bd4f1554d898fc72b1382dbf8a6
+          name: 'Node Peer Count'
+          type: DEPENDENT
+          key: node.peer_count
+          delay: '0'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.result.n_peers
+          master_item:
+            key: rpc.data.net_info
+          tags:
+            -
+              tag: Cosmos
+              value: Node
+        -
+          uuid: db955e05318449128e894ba0a7cdd137
+          name: 'Node Catching Up'
+          type: DEPENDENT
+          key: node.sync.catching_up
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.result.sync_info.catching_up
+          master_item:
+            key: rpc.data.status
+          tags:
+            -
+              tag: Cosmos
+              value: Node
+          triggers:
+            -
+              uuid: 0202f64efcd448d7b65b3c25dab7dcf1
+              expression: 'last(/Cosmos Nodes/node.sync.catching_up)="true"'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Cosmos Nodes/node.sync.catching_up)="false"'
+              name: 'Catching Up: {HOST.NAME}'
+              priority: WARNING
+        -
+          uuid: d3f8bd0bdb0a447b9d2d1cd5d482387f
+          name: 'Node Sync Height'
+          type: DEPENDENT
+          key: node.sync.height
+          delay: '0'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.result.sync_info.latest_block_height
+          master_item:
+            key: rpc.data.status
+          tags:
+            -
+              tag: Cosmos
+              value: Node
+        -
+          uuid: 29e4d8007df54f65abb682c9bf3bfef2
+          name: 'Osmosis Token Data'
+          type: HTTP_AGENT
+          key: osmosis.token.data
+          delay: 30s
+          history: 3600s
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.[0]'
+          url: 'https://api-osmosis.imperator.co/tokens/v1/{$SYMBOL}'
+        -
+          uuid: 2a56592037d041f3834fa2a2c60b46ce
+          name: 'Osmosis Token Liquidity'
+          type: DEPENDENT
+          key: osmosis.token.liquidity
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.liquidity
+          master_item:
+            key: osmosis.token.data
+          tags:
+            -
+              tag: Cosmos
+              value: Economics
+        -
+          uuid: a01ca7a39a9542e99ab7ef3afe6c8a12
+          name: 'Osmosis Token Price'
+          type: DEPENDENT
+          key: osmosis.token.price
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.price
+          master_item:
+            key: osmosis.token.data
+          tags:
+            -
+              tag: Cosmos
+              value: Economics
+        -
+          uuid: b6ca2b61350746dbb93104b0943252cf
+          name: 'Osmosis Token Volume'
+          type: DEPENDENT
+          key: osmosis.token.volume24h
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.volume_24h
+          master_item:
+            key: osmosis.token.data
+          tags:
+            -
+              tag: Cosmos
+              value: Economics
+        -
+          uuid: a8dfd6c8d4e84ee2b1656f25a748755e
+          name: 'Validator Data'
+          key: 'rest.validator.data[{$VALOPER}]'
+          delay: 30s
+          history: 3600s
+          trends: '0'
+          value_type: TEXT
+        -
+          uuid: d2975f251e06409bb2ed20910571df14
+          name: 'Node Net Info'
+          key: rpc.data.net_info
+          delay: 30s
+          history: 3600s
+          trends: '0'
+          value_type: TEXT
+        -
+          uuid: 8dde4c3581184f5c98132d089c429f8c
+          name: 'Node Status'
+          key: rpc.data.status
+          delay: 30s
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+        -
+          uuid: 71762ad8b53b46c3bef9f8d2172e5e30
+          name: 'Ping Daemon'
+          key: 'systemd.ping[{$TM_DAEMON}]'
+          delay: 30s
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Cosmos
+              value: Node
+          triggers:
+            -
+              uuid: 8c27d0f8bf464f91afc3a8c204e5cf54
+              expression: 'last(/Cosmos Nodes/systemd.ping[{$TM_DAEMON}])<>"active"'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Cosmos Nodes/systemd.ping[{$TM_DAEMON}])="active"'
+              name: 'Daemon Not Running: {HOST.NAME}'
+              priority: HIGH
+        -
+          uuid: c5ab1678de774e3591708352957bd375
+          name: 'Validator Jailed'
+          type: DEPENDENT
+          key: validator.jailed
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.validator.jailed
+          master_item:
+            key: 'rest.validator.data[{$VALOPER}]'
+          tags:
+            -
+              tag: Cosmos
+              value: Validator
+          triggers:
+            -
+              uuid: 0c99717748e94e0b8bb3f9658d785190
+              expression: 'last(/Cosmos Nodes/validator.jailed)="true"'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Cosmos Nodes/validator.jailed)="false"'
+              name: 'Validator Jailed: {HOST.NAME}'
+              priority: HIGH
+        -
+          uuid: 2beb38a6713945bcb6db5e658c78e4e0
+          name: 'Validator Moniker'
+          type: DEPENDENT
+          key: validator.moniker
+          delay: '0'
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.validator.description.moniker
+          master_item:
+            key: 'rest.validator.data[{$VALOPER}]'
+          tags:
+            -
+              tag: Cosmos
+              value: Validator
+        -
+          uuid: 1d38b979043f440fa1b7fcb3fad7e4bb
+          name: 'Validator Operator Address'
+          type: DEPENDENT
+          key: validator.operator_address
+          delay: '0'
+          history: 1d
+          trends: '0'
+          status: DISABLED
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.validator.operator_address
+          master_item:
+            key: 'rest.validator.data[{$VALOPER}]'
+          tags:
+            -
+              tag: Cosmos
+              value: Validator
+        -
+          uuid: 1fca9ff4a43e4bf4b4baa36ef2be8cb4
+          name: 'Validator Shares'
+          type: DEPENDENT
+          key: validator.shares
+          delay: '0'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.validator.tokens
+            -
+              type: MULTIPLIER
+              parameters:
+                - '0.000001'
+          master_item:
+            key: 'rest.validator.data[{$VALOPER}]'
+          tags:
+            -
+              tag: Cosmos
+              value: Validator
+        -
+          uuid: c7665a99f7cf4766a85c2a3f349d6178
+          name: 'Validator Bond Status'
+          type: DEPENDENT
+          key: validator.status
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.validator.status
+          master_item:
+            key: 'rest.validator.data[{$VALOPER}]'
+          tags:
+            -
+              tag: Cosmos
+              value: Validator
+          triggers:
+            -
+              uuid: e199cd99d98c42caa8530ce51f982e23
+              expression: 'last(/Cosmos Nodes/validator.status)<>"BOND_STATUS_BONDED"'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Cosmos Nodes/validator.status)="BOND_STATUS_BONDED"'
+              name: 'Validator Not Bonded: {HOST.NAME}'
+              opdata: 'Current bonding status: {ITEM.LASTVALUE}'
+              priority: HIGH
+        -
+          uuid: b1e85ac9eabc4ee189a5c08e097da90e
+          name: 'Validator TVL'
+          type: CALCULATED
+          key: validator.tvl
+          delay: 30s
+          params: 'floor(last(//osmosis.token.price)*last(//validator.shares))'
+          tags:
+            -
+              tag: Cosmos
+              value: Economics
+      macros:
+        -
+          macro: '{$TM_DAEMON}'
+          value: cosmovisor
+      dashboards:
+        -
+          uuid: 72e2fd2dff424bec9048fdf5cbdd70ef
+          name: 'Cosmos Node Data'
+          display_period: '10'
+          pages:
+            -
+              name: 'Cosmos Nodes'
+              widgets:
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Connected Peers'
+                  width: '16'
+                  height: '4'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Node Peers'
+                        host: 'Cosmos Nodes'
+                -
+                  type: PLAIN_TEXT
+                  name: 'Node Info'
+                  x: '16'
+                  width: '8'
+                  height: '8'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: show_lines
+                      value: '5'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: node.sync.catching_up
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: node.network
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: validator.status
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: validator.jailed
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: validator.moniker
+                        host: 'Cosmos Nodes'
+                -
+                  type: PLAIN_TEXT
+                  name: 'Token Economics'
+                  x: '16'
+                  'y': '8'
+                  width: '8'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: show_lines
+                      value: '3'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: osmosis.token.liquidity
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: osmosis.token.price
+                        host: 'Cosmos Nodes'
+                    -
+                      type: ITEM
+                      name: itemids
+                      value:
+                        key: osmosis.token.volume24h
+                        host: 'Cosmos Nodes'
+                -
+                  type: GRAPH_CLASSIC
+                  name: TVL
+                  'y': '8'
+                  width: '16'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Validator TVL'
+                        host: 'Cosmos Nodes'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Validator Shares'
+                  'y': '4'
+                  width: '16'
+                  height: '4'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Validator Shares'
+                        host: 'Cosmos Nodes'
+  triggers:
+    -
+      uuid: 761cf05b20ae4cd5804fdca075f6087a
+      expression: 'last(/Cosmos Nodes/systemd.ping[{$TM_DAEMON}])="active" and change(/Cosmos Nodes/node.sync.height)=0'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'change(/Cosmos Nodes/node.sync.height)>0'
+      name: 'Sync Stalled: {HOST.NAME}'
+      priority: HIGH
+    -
+      uuid: b997135c9c6a4ed295b93ff25897169e
+      expression: 'last(/Cosmos Nodes/systemd.ping[{$TM_DAEMON}])="active" and last(/Cosmos Nodes/node.peer_count)<5'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'last(/Cosmos Nodes/node.peer_count)>=5'
+      name: '{HOST.NAME} has low peer count ($2 peers)'
+      opdata: 'Current peer count: $2'
+      priority: AVERAGE
+      manual_close: 'YES'
+  graphs:
+    -
+      uuid: cf2c92f074894de7b3d7ec99818adeba
+      name: 'Node Peers'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'Cosmos Nodes'
+            key: node.peer_count
+    -
+      uuid: 5c16d2a6d88848f4b87d2bc80c11da6e
+      name: 'Node Sync Height'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'Cosmos Nodes'
+            key: node.sync.height
+    -
+      uuid: f78990cf414f4de691644e917075936c
+      name: 'Validator Shares'
+      graph_items:
+        -
+          sortorder: '1'
+          drawtype: GRADIENT_LINE
+          color: 199C0D
+          item:
+            host: 'Cosmos Nodes'
+            key: validator.shares
+    -
+      uuid: d76b1f73dcb94a428e8f56aed636018b
+      name: 'Validator TVL'
+      graph_items:
+        -
+          sortorder: '1'
+          drawtype: GRADIENT_LINE
+          color: 0080FF
+          item:
+            host: 'Cosmos Nodes'
+            key: validator.tvl

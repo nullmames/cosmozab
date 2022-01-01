@@ -1,10 +1,20 @@
 # cosmozab
 Zabbix stuff for Cosmos Nodes
 
+WARNiNG: This is still very much in development and i have not yet created most of the documentation to get up and running. Assuming you are proficient in Zabbix somewhat, you should be able to get these working. You will need to add macros etc for some of the functionality. Just ask if there is any questions.
+
+I have developed using Zabbix 6.0 server/gui and zabbix-agen2. But should work on any version above 5 i think.
+
+Requires:
+- API and RPC exposed for localhost. Calls will be made to these services from zabbix-agent2. Refer to the `zab.userparameters.cosmos.conf` file for info on what calls are made to the API and RPC.
+
 ## Introduction
 This is a collection of instructions, configurations and templates to integrate Zabbix monitoring with standard Cosmos Nodes running.
 
 Configurations are based on Ubuntu 20.04 but should work on most Linux distributions.
+
+## Screenshots
+
 
 # Install Agent and Configs
 We will be using Zabbix version 5.4 repository.
