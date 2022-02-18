@@ -52,8 +52,9 @@ sudo sed -i 's/Server=127.0.0.1/Server='"${SERVER}"'/g' /etc/zabbix/zabbix_agent
 sudo curl -o /etc/zabbix/zabbix_agent2.d/zab.userparameters.cosmos.conf https://raw.githubusercontent.com/nullmames/cosmozab/main/zabbix_agent2.d/zab.userparameters.cosmos.conf
 ```
 
-Restart agent
+Enable and restart agent
 ```bash
+sudo systemctl enable zabbix-agent2
 sudo systemctl restart zabbix-agent2
 ```
 
