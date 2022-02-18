@@ -23,7 +23,7 @@ We will be using Zabbix version 5.4 repository.
 ## Install repository and zabbix-agent2
 Add repository and update `apt`:
 ```bash
-wget wget https://repo.zabbix.com/zabbix/5.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.4-1+ubuntu20.04_all.deb
+wget https://repo.zabbix.com/zabbix/5.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.4-1+ubuntu20.04_all.deb
 sudo dpkg -i zabbix-release_5.4-1+ubuntu20.04_all.deb && sudo apt update
 ```
 Install zabbix-agent2 with `apt`:
